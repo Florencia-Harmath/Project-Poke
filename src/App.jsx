@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from "react";
+import { TiArrowRightOutline, TiArrowLeftOutline } from "react-icons/ti";
+import Button from "./components/button";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App = () => {
+  const [pokemonId, setPokemonId] = useState(1);
+  const [pokemonName, setPokemonName] = useState('');
+
+  useEffect(() => {
+    console.log("pokemonId changed to:", pokemonId);
+    getEvolutions(pokemonId);
+  }, [pokemonId]);
+
+  async function getEvolutions(id) {
+    try {
+      const res = await fetch(`https://pokeapi.co/api/v2/evolution-chain/${id}/`);
+      const data = await res.json();
+      setPokemonName(data.chain.species.name);
+      console.log(data.chain.species.name)
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  function prevClick() {
+    console.log("Prev clicked");
+    setPokemonId((prevPokemonId) => (prevPokemonId === 1 ? 1 : prevPokemonId - 1));
+  }
+
+  function nextClick() {
+    console.log("Next clicked");
+    setPokemonId((prevPokemonId) => prevPokemonId + 1);
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+      <Button icon={<TiArrowLeftOutline />} handleClick={prevClick} />
 
-export default App
+      {pokemonName}
+
+      <Button icon={<TiArrowRightOutline />} handleClick={nextClick} />
+    </>
+  );
+};
+
+export default App;
+
